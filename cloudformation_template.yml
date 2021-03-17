@@ -210,9 +210,12 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 's3:GetBucketNotification'
-                  - 's3:PutBucketNotification'
-                Resource: !Sub 'arn:aws:s3:::${CaptainsNotificationBucket}'
+                  - 's3:*'
+                Resource: !Sub 'arn:aws:s3:::${CaptainsNotificationBucket}/*'
+              - Effect: Allow
+                Action:
+                  - 'honeycode:*'
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - 'logs:CreateLogGroup'
