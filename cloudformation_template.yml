@@ -68,6 +68,7 @@ Resources:
           import json
           import csv
           import boto3
+          import uuid
           from urllib.parse import unquote_plus
 
           def lambda_handler(event, context):
@@ -75,8 +76,8 @@ Resources:
               for record in event['Records']:
                   bucketname = record['s3']['bucket']['name']
                   jsonfilename = unquote_plus(record['s3']['object']['key'])
-                  csvfilepath = "/tmp/test.csv"
-                  csvfilekey = "test.csv"
+                  csvfilekey = str(uuid.uuid1()) + ".csv"
+                  csvfilepath = "/tmp/" + csvfilekey
                   targetWorkbookId = 'f24109b3-6ec1-4aa1-aebf-5e66ed319d8c'
                   targetTableId = '6ea8e0f0-b7d6-47da-8668-db2d4c1030d4'
 
