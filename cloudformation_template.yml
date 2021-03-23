@@ -170,8 +170,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 's3:*'
-                Resource: !Sub 'arn:aws:s3:::${CaptainsNotificationBucket}'
+                  - 's3:PutBucketNotificationConfiguration'
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - 'honeycode:*'
