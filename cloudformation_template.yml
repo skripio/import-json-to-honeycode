@@ -1,5 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Stack for Firehose DeliveryStream S3 Destination.
+Parameters:
+  WorkbookIDParameter:
+      Type: String
+      Description: Enter the ID of the workbook to import data into.
+  TableIDParameter:
+      Type: String
+      Description: Enter the ID of the table to import data into.
 Resources:
   CaptainsFirehose:
     DependsOn:
@@ -70,6 +77,7 @@ Resources:
           import boto3
           import uuid
           from urllib.parse import unquote_plus
+          import os
 
           def lambda_handler(event, context):
 
@@ -78,8 +86,8 @@ Resources:
                   jsonfilename = unquote_plus(record['s3']['object']['key'])
                   csvfilekey = str(uuid.uuid1()) + ".csv"
                   csvfilepath = "/tmp/" + csvfilekey
-                  targetWorkbookId = 'f24109b3-6ec1-4aa1-aebf-5e66ed319d8c'
-                  targetTableId = '6ea8e0f0-b7d6-47da-8668-db2d4c1030d4'
+                  targetWorkbookId = os.environ['workbookId']
+                  targetTableId = os.environ['tableId']
 
                   honeycode_client = boto3.client('honeycode')
                   s3_client = boto3.client('s3')
@@ -142,6 +150,12 @@ Resources:
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.6
       Timeout: 5
+      Environment:
+        Variables:
+          workbookId:
+            Ref: WorkbookIDParameter
+          tableId:
+            Ref: TableIDParameter
 
   LambdaIAMRole:
     Type: 'AWS::IAM::Role'
