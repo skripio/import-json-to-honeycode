@@ -1,5 +1,5 @@
 # import-json-to-honeycode
-This is a python project which uses the boto3 library to import Json data to workbook.
+This is a python project which uses the boto3 library to import Json data to a Honeycode workbook. It comes with a reference architecture and AWS CloudFormation template.
 
 
 # Architecture
