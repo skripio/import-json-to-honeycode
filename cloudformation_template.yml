@@ -7,6 +7,9 @@ Parameters:
   TableIDParameter:
       Type: String
       Description: Enter the ID of the table to import data into.
+  DeleteTableRowsParameter:
+      Type: String
+      Description: Delete table rows before importing csv to workbook if set to true.
 Resources:
   CaptainsFirehose:
     DependsOn:
@@ -109,6 +112,27 @@ Resources:
                       csv_writer.writerow(line.values())
                   csvfile.close()
 
+                  # Delete table rows (optional)
+                  if os.environ['deleteTableRows'] == 'true':
+                      while True:
+                          listTableRowsResponse = honeycode_client.list_table_rows(
+                              workbookId = targetWorkbookId,
+                              tableId = targetTableId,
+                              maxResults = 100 # Maximum is 100
+                          )
+                          rowIdList = [];
+                          for row in listTableRowsResponse['rows']:
+                              rowIdList.append(row['rowId'])
+                          if len(rowIdList) != 0:
+                              honeycode_client.batch_delete_table_rows(
+                                      workbookId = targetWorkbookId,
+                                      tableId = targetTableId,
+                                      rowIds = rowIdList,
+                                      clientRequestToken = str(uuid.uuid4())
+                                  )
+                          else:
+                              break;
+
                   # Store the csv file back to s3 bucket
                   s3_client.upload_file(csvfilepath, bucketname, csvfilekey, ExtraArgs={'ContentType': 'text/csv'})
 
@@ -149,13 +173,15 @@ Resources:
       Handler: index.lambda_handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.6
-      Timeout: 5
+      Timeout: 30
       Environment:
         Variables:
           workbookId:
             Ref: WorkbookIDParameter
           tableId:
             Ref: TableIDParameter
+          deleteTableRows:
+            Ref: DeleteTableRowsParameter
 
   LambdaIAMRole:
     Type: 'AWS::IAM::Role'
